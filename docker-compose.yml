@@ -1,0 +1,38 @@
+services:
+  referral-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: referral-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+  # 可选: 独立专用的 MySQL 服务（若使用外部已有 MySQL，可注释掉此段）
+  # referral-mysql:
+  #   image: mysql:8.0
+  #   container_name: referral-mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: referral_root_password
+  #     MYSQL_DATABASE: referral
+  #   volumes:
+  #     - referral_mysql_data:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"
+
+# volumes:
+#   referral_mysql_data:
