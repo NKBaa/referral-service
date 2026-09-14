@@ -49,8 +49,8 @@ const (
 type ServiceRun struct {
 	ID              uint       `json:"id" gorm:"primaryKey;autoIncrement"`
 	RunID           string     `json:"run_id" gorm:"type:varchar(64);uniqueIndex;not null"`
-	BaselineTopUpID int64      `json:"baseline_topup_id" gorm:"not null;default:0"`
-	MaxSeenTopUpID  int64      `json:"max_seen_topup_id" gorm:"not null;default:0"`
+	BaselineTopUpID int64      `json:"baseline_topup_id" gorm:"column:baseline_top_up_id;not null;default:0"`
+	MaxSeenTopUpID  int64      `json:"max_seen_topup_id" gorm:"column:max_seen_top_up_id;not null;default:0"`
 	Status          string     `json:"status" gorm:"type:varchar(32);not null;default:'running'"`
 	StartedAt       time.Time  `json:"started_at" gorm:"not null"`
 	StoppedAt       *time.Time `json:"stopped_at,omitempty"`
@@ -62,7 +62,7 @@ type ServiceRun struct {
 type ReferralOrder struct {
 	ID              uint            `json:"id" gorm:"primaryKey;autoIncrement"`
 	RunID           string          `json:"run_id" gorm:"type:varchar(64);index;not null"`
-	TopUpID         int64           `json:"topup_id" gorm:"uniqueIndex;not null"`
+	TopUpID         int64           `json:"topup_id" gorm:"column:top_up_id;uniqueIndex;not null"`
 	TradeNo         string          `json:"trade_no" gorm:"type:varchar(255);index"`
 	InviteeID       int             `json:"invitee_id" gorm:"index;not null"`
 	InviterID       int             `json:"inviter_id" gorm:"index;not null"`
@@ -70,7 +70,7 @@ type ReferralOrder struct {
 	PaymentMethod   string          `json:"payment_method" gorm:"type:varchar(64)"`
 	Amount          int64           `json:"amount"`
 	Money           decimal.Decimal `json:"money" gorm:"type:decimal(16,4)"`
-	TopUpStatus     string          `json:"topup_status" gorm:"type:varchar(32);not null"`
+	TopUpStatus     string          `json:"topup_status" gorm:"column:top_up_status;type:varchar(32);not null"`
 	CreditedQuota   int64           `json:"credited_quota" gorm:"not null"`
 	CommissionRate  decimal.Decimal `json:"commission_rate" gorm:"type:decimal(8,4);not null"`
 	RewardQuota     int64           `json:"reward_quota" gorm:"not null"`

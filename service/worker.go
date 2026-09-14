@@ -298,11 +298,11 @@ func (w *Worker) executePoll() {
 		}
 		w.processTopUp(currentRun, topUp)
 
-		// 更新 max_seen_topup_id
+		// 更新 max_seen_top_up_id
 		w.runMu.Lock()
 		if topUp.ID > currentRun.MaxSeenTopUpID {
 			currentRun.MaxSeenTopUpID = topUp.ID
-			w.db.Model(currentRun).Update("max_seen_topup_id", topUp.ID)
+			w.db.Model(currentRun).Update("max_seen_top_up_id", topUp.ID)
 		}
 		w.runMu.Unlock()
 	}
@@ -312,7 +312,7 @@ func (w *Worker) executePoll() {
 func (w *Worker) processTopUp(currentRun *model.ServiceRun, topUp TopUpDTO) {
 	// 1. 查询该 TopUp 是否已有处理记录
 	var existing model.ReferralOrder
-	err := w.db.Where("topup_id = ?", topUp.ID).First(&existing).Error
+	err := w.db.Where("top_up_id = ?", topUp.ID).First(&existing).Error
 	if err == nil {
 		// 已存在且处于终态，则无需处理
 		if existing.Status == model.OrderStatusSuccess ||
