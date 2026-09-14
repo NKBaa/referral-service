@@ -39,8 +39,8 @@ func NewServer(cfg *config.Config, db *gorm.DB, worker *service.Worker) *Server 
 }
 
 func (s *Server) setupRoutes() {
-	// 1. 健康检查端点（Docker Health Check 探针）
-	s.router.GET("/health", func(c *gin.Context) {
+	// 1. 健康检查端点（Docker Health Check 探针，同时兼容 /health 与 /healthz）
+	healthHandler := func(c *gin.Context) {
 		sqlDB, err := s.db.DB()
 		dbHealthy := true
 		if err != nil || sqlDB.Ping() != nil {
@@ -61,13 +61,15 @@ func (s *Server) setupRoutes() {
 		}
 
 		c.JSON(statusCode, gin.H{
-			"status":     status,
-			"database":   dbHealthy,
-			"is_paused":  s.worker.IsPaused(),
+			"status":      status,
+			"database":    dbHealthy,
+			"is_paused":   s.worker.IsPaused(),
 			"current_run": runID,
-			"time":       time.Now().Format(time.RFC3339),
+			"time":        time.Now().Format(time.RFC3339),
 		})
-	})
+	}
+	s.router.GET("/health", healthHandler)
+	s.router.GET("/healthz", healthHandler)
 
 	apiGroup := s.router.Group("/api")
 	{
