@@ -189,10 +189,15 @@ func (c *NewApiClient) GetUser(userID int) (*UserDTO, error) {
 }
 
 // AddAffReward 调用 New API 新增的极薄接口发送充值返佣奖励（原则 3、5）
-func (c *NewApiClient) AddAffReward(userID int, quota int64) error {
+func (c *NewApiClient) AddAffReward(reference string, userID int, quota int64) error {
+	if reference == "" {
+		reference = fmt.Sprintf("reward-%d-%d", userID, time.Now().UnixNano())
+	}
 	reqPayload := map[string]any{
-		"user_id": userID,
-		"quota":   quota,
+		"reference":    reference,
+		"user_id":      userID,
+		"reward_quota": quota,
+		"quota":        quota,
 	}
 	data, err := json.Marshal(reqPayload)
 	if err != nil {

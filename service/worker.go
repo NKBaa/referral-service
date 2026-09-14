@@ -407,7 +407,8 @@ func (w *Worker) processTopUp(currentRun *model.ServiceRun, topUp TopUpDTO) {
 	}
 
 	// 8. 调用 New API 极薄接口发放奖励（原则 3、5）
-	err = w.client.AddAffReward(invitee.InviterID, rewardQuota)
+	ref := fmt.Sprintf("topup-%d", topUp.ID)
+	err = w.client.AddAffReward(ref, invitee.InviterID, rewardQuota)
 	if err != nil {
 		w.handleRetryableError(existing, currentRun.RunID, topUp, invitee.InviterID, creditedQuota, rewardQuota, fmt.Sprintf("Failed to call aff reward API: %s", err.Error()))
 		w.Audit(model.AuditActionRewardFailed, fmt.Sprintf("TopUp %d failed to reward inviter %d: %s", topUp.ID, invitee.InviterID, err.Error()))
