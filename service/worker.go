@@ -356,11 +356,15 @@ func (w *Worker) processTopUp(currentRun *model.ServiceRun, topUp TopUpDTO) {
 	}
 
 	// 3. 校验 PaymentProvider 并按照对应入账规则计算 creditedQuota（原则 9、10、11）
-	creditedQuota, err := CalculateCreditedQuota(topUp.PaymentProvider, topUp.Amount, topUp.Money)
+	provider := topUp.PaymentProvider
+	if provider == "" {
+		provider = topUp.PaymentMethod
+	}
+	creditedQuota, err := CalculateCreditedQuota(provider, topUp.Amount, topUp.Money)
 	if err != nil {
 		if errors.Is(err, ErrUnsupportedProvider) {
-			w.recordOrderDecision(existing, currentRun.RunID, topUp, 0, 0, 0, model.OrderStatusSkippedUnsupportedProvider, fmt.Sprintf("Unsupported provider: %s", topUp.PaymentProvider))
-			w.Audit(model.AuditActionRewardSkipped, fmt.Sprintf("TopUp %d skipped: unsupported provider %s", topUp.ID, topUp.PaymentProvider))
+			w.recordOrderDecision(existing, currentRun.RunID, topUp, 0, 0, 0, model.OrderStatusSkippedUnsupportedProvider, fmt.Sprintf("Unsupported provider: %s", provider))
+			w.Audit(model.AuditActionRewardSkipped, fmt.Sprintf("TopUp %d skipped: unsupported provider %s", topUp.ID, provider))
 			return
 		}
 		w.recordOrderDecision(existing, currentRun.RunID, topUp, 0, 0, 0, model.OrderStatusFailed, err.Error())
